@@ -5,6 +5,7 @@ using Microsoft.eShopWeb.Infrastructure.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using System;
 using System.Threading.Tasks;
 
@@ -21,6 +22,7 @@ namespace Microsoft.eShopWeb.PublicApi
             {
                 var services = scope.ServiceProvider;
                 var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+
                 try
                 {
                     var catalogContext = services.GetRequiredService<CatalogContext>();
@@ -46,6 +48,18 @@ namespace Microsoft.eShopWeb.PublicApi
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                }).ConfigureLogging((context, loggingBuilder) =>
+                {
+                    string key = context.Configuration.GetSection("ApplicationInsights:ConnectionString").Value;
+                    loggingBuilder.AddApplicationInsights(key);
+
+                    // Capture all log-level entries from Program
+                    //loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>(
+                    //    typeof(Program).FullName, LogLevel.Trace);
+
+                    // Capture all log-level entries from Startup
+                    //loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>(
+                   //     typeof(Startup).FullName, LogLevel.Trace);
                 });
     }
 }
