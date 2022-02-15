@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net.Http;
 
 
 namespace Microsoft.eShopWeb.ApplicationCore.Services
@@ -57,6 +58,15 @@ namespace Microsoft.eShopWeb.ApplicationCore.Services
             var order = new Order(basket.BuyerId, shippingAddress, items);
 
             await _orderRepository.AddAsync(order);
+
+
+            // Call DeliveryOrderProcessor function with http trigger.
+            var serializedItemsForBlob = JsonConvert.SerializeObject(order);
+            var httpClient = new HttpClient();
+            var url = _configuration.GetSection("DeliveryOrderProcessorUrl").Value;
+
+            await httpClient.PostAsync(url, new StringContent(serializedItemsForBlob));
+
 
             // Send message to Service Bus and trigger OrderItemsReserver function.
             var itemsForServiceBus = items.Select(item => new { Id = item.Id, Quantity = item.Units });

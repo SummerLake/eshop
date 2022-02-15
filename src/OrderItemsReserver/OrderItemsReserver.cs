@@ -21,7 +21,7 @@ namespace OrdersItemsReceiver
                 try
                 {
                     var blobServiceClient = new BlobServiceClient(Environment.GetEnvironmentVariable("AzureWebJobsStorage"));
-                    var containerClient = blobServiceClient.GetBlobContainerClient("items-orders");
+                    var containerClient = blobServiceClient.GetBlobContainerClient("bloborders");
 
                     await containerClient.CreateIfNotExistsAsync();
 
